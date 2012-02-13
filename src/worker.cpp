@@ -1,0 +1,72 @@
+#include <iterator>
+#include "worker.hpp"
+
+void worker::dump2output( const bitset &bits )
+{
+	bitset tmp;
+	for ( int i = 0; i < bits.size(); ++i ) tmp.push_back( bits[i] );
+	for ( int i = 0; i < m_bits_buf.size(); ++i ) tmp.push_back( m_bits_buf[i] );
+	m_bits_buf = tmp;
+}
+
+void worker::dump2output( bool should_align )
+{
+	if ( m_bits_buf.size() == 0 ) return;
+	vector<char> out;
+	bitset tmp;
+	if ( should_align )
+	{
+		int n = 8 - m_bits_buf.size() % 8;
+		for ( int i = 0; i < n; ++i ) tmp.push_back( false );
+		for ( int i = 0; i < m_bits_buf.size(); ++i ) tmp.push_back( m_bits_buf[i] );
+		m_bits_buf.resize( 0 );
+	}
+	else
+	{
+		int n = m_bits_buf.size() % 8;
+		for ( int i = n; i < m_bits_buf.size(); ++i ) tmp.push_back( m_bits_buf[i] );
+		m_bits_buf.resize( m_bits_buf.size() % 8 );
+	}
+	boost::to_block_range( tmp, back_inserter( out ) );
+	for ( vector<char>::reverse_iterator i = out.rbegin(); i != out.rend(); ++i ) *m_output << *i;
+}
+
+size_t worker::read( char *buf, size_t count )
+{
+	m_input->read( buf, count );
+	size_t result = m_input->gcount();
+	return result;
+}
+
+void worker::init( fstream &input, fstream &output )
+{
+	m_input = &input;
+	m_output = &output;
+}
+
+void worker::_operate( worker::read_func read, worker::write_func write )
+{
+	streampos pos = m_input->tellg();
+	while ( read( this ) )
+	{
+		m_input->seekg( pos, ios::beg );
+		if ( m_input->fail() || m_input->eof() )
+		{
+			m_input->clear();
+			m_input->seekg( pos, ios::beg );
+		}
+		write( this );
+		dump2output( true );
+		pos = m_input->tellg();
+	}
+}
+
+void worker::compress()
+{
+	_operate( &worker::cread_block, &worker::cwrite_block );
+}
+
+void worker::decompress()
+{
+	_operate( &worker::dread_block, &worker::dwrite_block );
+}
