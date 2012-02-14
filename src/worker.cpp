@@ -1,14 +1,6 @@
 #include <iterator>
 #include "worker.hpp"
 
-void worker::dump2output( const bitset &bits )
-{
-	bitset tmp;
-	for ( int i = 0; i < bits.size(); ++i ) tmp.push_back( bits[i] );
-	for ( int i = 0; i < m_bits_buf.size(); ++i ) tmp.push_back( m_bits_buf[i] );
-	m_bits_buf = tmp;
-}
-
 void worker::dump2output( bool should_align )
 {
 	if ( m_bits_buf.size() == 0 ) return;

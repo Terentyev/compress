@@ -19,20 +19,18 @@ public:
 	typedef boost::function<void ( worker* )> write_func;
 
 private:
-	bitset m_bits_buf;
-
 	void _operate( worker::read_func read, worker::write_func write );
 
 protected:
 	fstream *m_input;
 	fstream *m_output;
+	bitset m_bits_buf;
 
 	virtual bool cread_block() = 0;
 	virtual void cwrite_block() = 0;
 	virtual bool dread_block() = 0;
 	virtual void dwrite_block() = 0;
 
-	void dump2output( const bitset &bits );
 	void dump2output( bool should_align = false );
 	size_t read( char *buf, size_t count );
 

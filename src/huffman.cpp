@@ -95,7 +95,10 @@ void huffman::cwrite_block()
 		while ( i < n )
 		{
 			unsigned char ch = (unsigned char) chars[i++];
-			dump2output( m_root->encode( ch ) );
+			bitset tmp = m_root->encode( ch );
+			for ( int j = 0; j < m_bits_buf.size(); ++j ) tmp.push_back( m_bits_buf[j] );
+			m_bits_buf = tmp;
+			dump2output();
 		}
 	}
 }
@@ -145,12 +148,18 @@ void huffman::dwrite_block()
 		while ( n-- > 0 ) tmp.append( chars[n] );
 		for ( size_t i = 0; i < bits.size(); ++i ) tmp.push_back( bits[i] );
 		bits = tmp;
-	}
-	size_t i = bits.size() - 1;
-	while ( !m_root->empty() )
-	{
-		char tmp = (char) m_root->decode( bits, i );
-		*m_output << tmp;
+		size_t i = bits.size() - 1;
+		while ( !m_root->empty() )
+		{
+			char tmp;
+			if ( m_root->decode( bits, i, tmp ) )
+			{
+				*m_output << tmp;
+				continue;
+			}
+			bits.resize( i + 1 );
+			break;
+		}
 	}
 }
 
@@ -220,12 +229,32 @@ bitset huffman::tree_node::encode( unsigned char ch )
 	return tmp;
 }
 
-char huffman::tree_node::decode( bitset &bits, size_t &idx )
+bool huffman::tree_node::decode( bitset &bits, size_t &idx, char &out )
 {
+	if ( idx == 0 && left != NULL && right != NULL ) return false;
+
 	--frequency;
-	if ( left != NULL && !bits[idx] ) return left->decode( bits, --idx );
-	if ( right != NULL && bits[idx] ) return right->decode( bits, --idx );
-	for ( int i = 0; i < BUF_LEN; ++i ) if ( chars[i] ) return (char) i;
+	tree_node::ptr node;
+	if ( left != NULL && !bits[idx] ) node = left;
+	if ( right != NULL && bits[idx] ) node = right;
+
+	if ( node != NULL )
+	{
+		if ( !node->decode( bits, --idx, out ) )
+		{
+			++idx;
+			++frequency;
+			return false;
+		}
+		else return true;
+	}
+
+	for ( int i = 0; i < BUF_LEN; ++i ) if ( chars[i] )
+	{
+		out = (char) i;
+		return true;
+	}
+
 	cerr << "Not found code in Huffman-tree" << endl;
 	exit( 1 );
 }

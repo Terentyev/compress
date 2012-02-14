@@ -34,7 +34,7 @@ public:
 		bool empty() { return frequency == 0; };
 		size_t encoded_size();
 		bitset encode( unsigned char ch );
-		char decode( bitset &bits, size_t &idx );
+		bool decode( bitset &bits, size_t &idx, char &out );
 
 		friend ostream& operator<<( ostream &stream, const tree_node &node );
 	};
