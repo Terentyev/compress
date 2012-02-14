@@ -2,7 +2,11 @@
 
 BIN=./compress
 
-rm -f .tmp/* > /dev/null
+if [ -d .tmp ] ; then
+    rm -f .tmp/* > /dev/null
+else
+    mkdir .tmp
+fi
 
 for i in `seq 1 10` ;
 do
@@ -15,12 +19,14 @@ do
     t1=`(time ${BIN} -c -i tests/t${i} -o .tmp/compress) 2>&1 | grep -o -e '.m.\....s' -m 1`
     echo -n "decompress "
     t2=`(time ${BIN} -x -i .tmp/compress -o .tmp/decompress) 2>&1 | grep -o -e '.m.\....s' -m 1`
+    sleep 1
     if ! cmp tests/t${i} .tmp/decompress > /dev/null ; then
         echo " FAILED"
         mv .tmp/compress .tmp/compress.${i}
         mv .tmp/decompress .tmp/decompress.${i}
+        break
     else
-        echo " OK ( compress: ${t1}; decompress: ${t2}"
+        echo " OK ( compress: ${t1}; decompress: ${t2} )"
     fi
 done
 
