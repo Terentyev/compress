@@ -27,13 +27,13 @@ void lwz::cwrite_block()
 			m_rtable[m_next_code] = str + ch;
 			++m_next_code;
 
-			cerr << hex << (short)m_table[str + ch] << "='" << str + ch << "'" << endl;
 			str = string() + ch;
 		}
 	}
 
+	if ( str != "" ) str = str.substr( 0, str.length() - 1 );
 	if ( m_table.find( str ) != m_table.end() ) *m_output << (char) m_table[ str ] << '\0';
-	else for ( string::iterator i = str.begin(); (i+1) != str.end(); ++i ) *m_output << '\0' << *i;
+	else for ( string::iterator i = str.begin(); i != str.end(); ++i ) *m_output << '\0' << *i;
 }
 
 bool lwz::dread_block()
@@ -62,16 +62,13 @@ void lwz::dwrite_block()
 				m_rtable[ buf[0] ] = str == ""
 					? ( tmp + tmp[0] )
 					: ( str + str );
-				cerr << hex << (short) buf[0] << "='" << m_rtable[ buf[0] ] << "'" << endl;
 			}
 			else
 			{
 				m_rtable[ m_next_code ] = ( str == "" ? tmp : str );
 				m_rtable[ m_next_code ] += m_rtable[ buf[0] ][0];
-				cerr << hex << (short) (m_next_code) << "='" << m_rtable[ m_next_code ] << "'" << endl;
 				++m_next_code;
 			}
-			cerr << "[" << str << m_rtable[ buf[0] ] << "]" << endl;
 			*m_output << str << m_rtable[ buf[0] ];
 			tmp = m_rtable[ buf[0] ];
 			str = "";
@@ -82,18 +79,15 @@ void lwz::dwrite_block()
 			{
 				if ( str != "" )
 				{
-					cerr << "[" << str << "]" << endl;
 					*m_output << str;
 				}
 				m_rtable[ m_next_code++ ] = str + tmp + buf[1];
-				cerr << hex << (short) (m_next_code-1) << "='" << m_rtable[ m_next_code-1 ] << "'" << endl;
 			}
 			str = string() + buf[1];
 			tmp = "";
 		}
 	}
 
-	cerr << "'" << str << "'";
 	*m_output << str;
 }
 
