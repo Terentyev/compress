@@ -9,7 +9,7 @@
 #include "compress.hpp"
 #include "worker.hpp"
 #include "huffman.hpp"
-//#include "lwz.hpp"
+#include "lwz.hpp"
 
 using namespace std;
 
@@ -100,9 +100,9 @@ int main( int argc, char **argv )
 		case ALGO_HUFFMAN:
 			w = boost::shared_ptr<worker>(new huffman());
 			break;
-//		case ALGO_LWZ:
-//			w = boost::shared_ptr<worker>(new lwz());
-//			break;
+		case ALGO_LWZ:
+			w = boost::shared_ptr<worker>(new lwz());
+			break;
 		default:
 			error( "Not implemented" );
 			return 1;
