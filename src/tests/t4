@@ -1,47 +1,26 @@
-# These settings were set by the catalyst build script that automatically
-# built this stage.
-# Please consult /usr/share/portage/config/make.conf.example for a more
-# detailed example.
-CFLAGS="-march=core2 -O3 -pipe" #-g # TODO: Remove "-g" (for valgrind)
-CXXFLAGS="${CFLAGS}"
-#FEATURES="splitdebug" # TODO: Remove this line (for valgrind)
+#include "lwz.hpp"
 
-# WARNING: Changing your CHOST is not something that should be done lightly.
-# Please consult http://www.gentoo.org/doc/en/change-chost.xml before changing.
-CHOST="x86_64-pc-linux-gnu"
+bool lwz::cread_block()
+{
+	return !m_input->eof();
+}
 
-MAKEOPTS="-j3"
-# These are the USE flags that were used in addition to what is provided by the
-# profile used for building.
-USE="${USE} -32bit 64bit"
-USE="${USE} aac acl acpi alsa apache2 apng"
-USE="${USE} bash-completion"
-USE="${USE} cdr cgi clamav consolekit cscope css curl curlwrappers"
-USE="${USE} dbus declarative device-mapper directfb djvu dmx doc -dso dvd dvdr"
-USE="${USE} embedded -emerald encode evo extras"
-USE="${USE} fastcgi fbcondecor ffmpeg firebird flac ftp"
-USE="${USE} -gconf gd geoip gif gimp glut gmp -gnome -gnome-keyring -gphoto2 gtk"
-USE="${USE} hal"
-USE="${USE} jabber java javascript jingle jpeg jpeg2k"
-USE="${USE} -kde -kdrive"
-USE="${USE} -ldap libnotify libwww"
-USE="${USE} maildir matroska -mbox mmx mng mp3 mp4 mpeg mplayer mtp mysql"
-USE="${USE} -nautilus -networkmanager nptl nvidia"
-USE="${USE} ogg opengl"
-USE="${USE} -pam pdf perl php plasma png -policykit posix -pulseaudio python"
-USE="${USE} -qt4 -qt3support"
-USE="${USE} rss ruby"
-USE="${USE} -sdl spell sql sqlite sse sse2 ssl static-libs subversion svg svga"
-USE="${USE} tiff tokenizer truetype type1"
-USE="${USE} udev unicode usb utf8"
-USE="${USE} v4l v4l2 vaapi vdpau vhosts video vim-syntax"
-USE="${USE} weather webkit win32codecs"
-USE="${USE} X x264 xml xorg xv xvid"
+void lwz::cwrite_block()
+{
+	string str;
+	char ch;
+	bool align = true;
 
+	m_input->get( ch );
+	str += ch;
+	while ( !m_input->eof() )
+	{
+		m_input->get( ch );
 
-LINGUAS="en ru"
-CAMERAS="canon"
-ALSA_CARDS="via82xx"
-VIDEO_CARDS="nvidia"
-
-#source /var/lib/layman/make.conf
+		if ( m_table.find( str + ch ) != m_table.end() )
+		{
+			str += ch;
+			align = false;
+		}
+		else
+		{
