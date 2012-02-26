@@ -16,11 +16,11 @@ do
     fi
 
     echo -n "Test ${i}: compress "
-    t1=`(time ${BIN} -c -i tests/t${i} -o .tmp/compress &> log) 2>&1 | grep -o -e '.m.\....s' -m 1`
+    t1=`(time ${BIN} -c -i tests/t${i} -o .tmp/compress &> log) 2>&1 | grep -o -Pe '.?.m.?.\....s' -m 1`
     echo -n "decompress "
-    t2=`(time ${BIN} -x -i .tmp/compress -o .tmp/decompress &> log1) 2>&1 | grep -o -e '.m.\....s' -m 1`
+    t2=`(time ${BIN} -x -i .tmp/compress -o .tmp/decompress &> log1) 2>&1 | grep -o -Pe '.?.m.?.\....s' -m 1`
     if ! cmp tests/t${i} .tmp/decompress > /dev/null ; then
-        echo " FAILED"
+        echo " FAILED ( compress: ${t1}; decompress: ${t2} )"
         mv .tmp/compress .tmp/compress.${i}
         mv .tmp/decompress .tmp/decompress.${i}
         break
