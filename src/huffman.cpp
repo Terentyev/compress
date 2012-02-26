@@ -52,19 +52,17 @@ bool huffman::cread_block()
 	if ( m_input->eof() ) return false;
 
 	nodes frequency( BUF_LEN );
-	while ( !m_input->eof() )
+	bool br = false;
+	while ( !m_input->eof() && !br )
 	{
 		char chars[BUF_LEN];
 		size_t i = 0;
 		size_t n = read( chars, BUF_LEN );
-		while ( i < n )
+		while ( i < n && !br )
 		{
 			unsigned char ch = (unsigned char) chars[i++];
-			if ( frequency[ch] == NULL )
-			{
-				frequency[ch] = tree_node::ptr( new tree_node( ch ) );
-			}
-			else if ( frequency[ch]->frequency == BUF_LEN - 1 ) break;
+			if ( frequency[ch] == NULL ) frequency[ch] = tree_node::ptr( new tree_node( ch ) );
+			else if ( frequency[ch]->frequency == BUF_LEN - 1 ) br = true;
 			else ++frequency[ch]->frequency;
 		}
 	}
@@ -86,16 +84,19 @@ bool huffman::cread_block()
 void huffman::cwrite_block()
 {
 	*m_output << *m_root << '\0' << '\0';
+	vector<bitset> codes( BUF_LEN );
 
 	while ( !m_input->eof() && !m_root->empty() )
 	{
 		char chars[BUF_LEN];
 		size_t i = 0;
-		size_t n = read( chars, min( (int) m_root->frequency, BUF_LEN ) );
+		size_t n = read( chars, min( (size_t) m_root->frequency, (size_t) BUF_LEN ) );
 		while ( i < n )
 		{
 			unsigned char ch = (unsigned char) chars[i++];
-			bitset tmp = m_root->encode( ch );
+			if ( codes[ch].size() == 0 ) codes[ch] = m_root->encode( ch );
+			else --m_root->frequency;
+			bitset tmp = codes[ch];
 			for ( int j = 0; j < m_bits_buf.size(); ++j ) tmp.push_back( m_bits_buf[j] );
 			m_bits_buf = tmp;
 			dump2output();
@@ -148,7 +149,7 @@ void huffman::dwrite_block()
 		while ( n-- > 0 ) tmp.append( chars[n] );
 		for ( size_t i = 0; i < bits.size(); ++i ) tmp.push_back( bits[i] );
 		bits = tmp;
-		size_t i = bits.size() - 1;
+		size_t i = bits.size();
 		while ( !m_root->empty() )
 		{
 			char tmp;
@@ -157,7 +158,7 @@ void huffman::dwrite_block()
 				*m_output << tmp;
 				continue;
 			}
-			bits.resize( i + 1 );
+			bits.resize( i );
 			break;
 		}
 	}
@@ -235,8 +236,8 @@ bool huffman::tree_node::decode( bitset &bits, size_t &idx, char &out )
 
 	--frequency;
 	tree_node::ptr node;
-	if ( left != NULL && !bits[idx] ) node = left;
-	if ( right != NULL && bits[idx] ) node = right;
+	if ( left != NULL && !bits[idx - 1] ) node = left;
+	if ( right != NULL && bits[idx - 1] ) node = right;
 
 	if ( node != NULL )
 	{
