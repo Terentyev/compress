@@ -24,7 +24,8 @@ void print( const huffman::tree_node::ptr node, int s = 0 )
 
 void huffman::build_tree( huffman::nodes &nodes )
 {
-	while ( nodes.size() > 1 )
+	int n = nodes.size();
+	while ( n-- > 1 )
 	{
 		nodes::iterator i1 = nodes.end();
 		nodes::iterator i2 = nodes.end();
@@ -62,7 +63,7 @@ bool huffman::cread_block()
 		{
 			unsigned char ch = (unsigned char) chars[i++];
 			if ( frequency[ch] == NULL ) frequency[ch] = tree_node::ptr( new tree_node( ch ) );
-			else if ( frequency[ch]->frequency == BUF_LEN - 1 ) br = true;
+			else if ( frequency[ch]->frequency == MAX_FREQ - 1 ) br = true;
 			else ++frequency[ch]->frequency;
 		}
 	}
@@ -74,7 +75,7 @@ bool huffman::cread_block()
 		else ++fit;
 	}
 
-	if ( frequency.size() == 0 ) return false;
+	if ( frequency.empty() ) return false;
 
 	build_tree( frequency );
 
@@ -83,7 +84,7 @@ bool huffman::cread_block()
 
 void huffman::cwrite_block()
 {
-	*m_output << *m_root << '\0' << '\0';
+	*m_output << *m_root << '\0' << '\0' << '\0';
 	vector<bitset> codes( BUF_LEN );
 
 	while ( !m_input->eof() && !m_root->empty() )
@@ -94,10 +95,11 @@ void huffman::cwrite_block()
 		while ( i < n )
 		{
 			unsigned char ch = (unsigned char) chars[i++];
-			if ( codes[ch].size() == 0 ) codes[ch] = m_root->encode( ch );
+			if ( codes[ch].empty() ) codes[ch] = m_root->encode( ch );
 			else --m_root->frequency;
 			bitset tmp = codes[ch];
-			for ( int j = 0; j < m_bits_buf.size(); ++j ) tmp.push_back( m_bits_buf[j] );
+			int buf_size = m_bits_buf.size();
+			for ( int j = 0; j < buf_size; ++j ) tmp.push_back( m_bits_buf[j] );
 			m_bits_buf = tmp;
 			dump2output();
 		}
@@ -111,24 +113,30 @@ bool huffman::dread_block()
 
 void huffman::dwrite_block()
 {
+#define CHARS_COUNT 3
 	size_t n;
-	char entry[2];
+	char entry[CHARS_COUNT];
 	nodes nodes;
 
 	do
 	{
-		n = read( entry, 2 );
-		if ( n < 2 && n > 0 )
+		n = read( entry, CHARS_COUNT );
+		if ( n < CHARS_COUNT && n > 0 )
 		{
 			cerr << "Unexpected EOF: " << entry[0] << endl;
 			exit( 1 );
 		}
 
-		if ( entry[0] == 0 && entry[1] == 0 ) break;
-		nodes.push_back( tree_node::ptr( new tree_node( (unsigned char) entry[0], (unsigned char) entry[1] ) ) );
+		if ( entry[0] == 0 && entry[1] == 0 && entry[2] == 0 ) break;
+
+		nodes.push_back( tree_node::ptr(
+			new tree_node( (unsigned char) entry[0],
+			(((unsigned char) entry[1]) << 8) | (unsigned char) entry[2] )
+		) );
+		if ( entry[0] >= 32 && entry[0] <= 127 ) cerr << entry[0] << "=" << (((unsigned char) entry[1]<<8)|(unsigned char)entry[2]) << endl;
 	} while ( !m_input->eof() );
 
-	if ( nodes.size() == 0 )
+	if ( nodes.empty() )
 	{
 		return;
 		cerr << "Bad frequency table" << endl;
@@ -147,7 +155,8 @@ void huffman::dwrite_block()
 		need -= n;
 		bitset tmp;
 		while ( n-- > 0 ) tmp.append( chars[n] );
-		for ( size_t i = 0; i < bits.size(); ++i ) tmp.push_back( bits[i] );
+		size_t bits_size = bits.size();
+		for ( size_t i = 0; i < bits_size; ++i ) tmp.push_back( bits[i] );
 		bits = tmp;
 		size_t i = bits.size();
 		while ( !m_root->empty() )
@@ -204,7 +213,7 @@ size_t huffman::tree_node::_calculate_encoded_size( size_t depth )
 	return depth * (size_t) frequency;
 }
 
-unsigned char huffman::tree_node::_char_frequency( unsigned char ch ) const
+unsigned short huffman::tree_node::_char_frequency( unsigned char ch ) const
 {
 	if ( left == NULL ) return frequency;
 	if ( left->chars[ch] ) return left->_char_frequency( ch );
@@ -265,7 +274,8 @@ ostream& operator<<( ostream &stream, const huffman::tree_node &node )
 	for ( short i = 0; i < BUF_LEN; ++i )
 	{
 		if ( !node.chars[i] ) continue;
-		stream << (char) i << (char) node._char_frequency( (unsigned char) i );
+		unsigned short f = node._char_frequency( (unsigned char) i );
+		stream << (char) i << (char) (f >> 8) << (char) (f & 255);
 	}
 	return stream;
 }

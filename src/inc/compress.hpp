@@ -10,5 +10,6 @@
 #define OP_DECOMPRESS 1
 
 #define BUF_LEN 256
+#define MAX_FREQ 65536
 
 #endif // __COMPRESS_H_INCLUDE

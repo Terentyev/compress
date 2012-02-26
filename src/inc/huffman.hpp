@@ -16,7 +16,7 @@ public:
 
 		void _init();
 		size_t _calculate_encoded_size( size_t depth = 0 );
-		unsigned char _char_frequency( unsigned char ch ) const;
+		unsigned short _char_frequency( unsigned char ch ) const;
 
 	public:
 		typedef boost::shared_ptr<tree_node> ptr;
