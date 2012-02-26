@@ -26,6 +26,7 @@ void lwz::cwrite_block()
 			m_table[ str + ch ] = m_next_code;
 			m_rtable[m_next_code] = str + ch;
 			++m_next_code;
+			if ( m_next_code == 0 ) m_next_code = 1;
 
 			str = string() + ch;
 		}
@@ -68,6 +69,7 @@ void lwz::dwrite_block()
 				m_rtable[ m_next_code ] = ( str == "" ? tmp : str );
 				m_rtable[ m_next_code ] += m_rtable[ buf[0] ][0];
 				++m_next_code;
+				if ( m_next_code == 0 ) m_next_code = 1;
 			}
 			*m_output << str << m_rtable[ buf[0] ];
 			tmp = m_rtable[ buf[0] ];
@@ -81,7 +83,9 @@ void lwz::dwrite_block()
 				{
 					*m_output << str;
 				}
-				m_rtable[ m_next_code++ ] = str + tmp + buf[1];
+				m_rtable[ m_next_code ] = str + tmp + buf[1];
+				++m_next_code;
+				if ( m_next_code == 0 ) m_next_code = 1;
 			}
 			str = string() + buf[1];
 			tmp = "";
