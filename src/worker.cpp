@@ -26,40 +26,33 @@ void worker::dump2output( bool should_align )
 
 size_t worker::read( char *buf, size_t count )
 {
-	m_input->read( buf, count );
-	size_t result = m_input->gcount();
-	return result;
+	return m_input.read( buf, count );
 }
 
 void worker::init( fstream &input, fstream &output )
 {
-	m_input = &input;
+	m_input = reader( &input );
 	m_output = &output;
 }
 
-void worker::_operate( worker::read_func read, worker::write_func write )
+void worker::_operate( worker::read_func read, worker::write_func write, bool clean_buf )
 {
-	streampos pos = m_input->tellg();
-	while ( read( this ) )
+	while ( 1 )
 	{
-		m_input->seekg( pos, ios::beg );
-		if ( m_input->fail() || m_input->eof() )
-		{
-			m_input->clear();
-			m_input->seekg( pos, ios::beg );
-		}
+		m_input.save_point( clean_buf );
+		if ( !read( this ) ) break;
+		m_input.load_point();
 		write( this );
 		dump2output( true );
-		pos = m_input->tellg();
 	}
 }
 
 void worker::compress()
 {
-	_operate( &worker::cread_block, &worker::cwrite_block );
+	_operate( &worker::cread_block, &worker::cwrite_block, false );
 }
 
 void worker::decompress()
 {
-	_operate( &worker::dread_block, &worker::dwrite_block );
+	_operate( &worker::dread_block, &worker::dwrite_block, true );
 }

@@ -50,11 +50,11 @@ void huffman::build_tree( huffman::nodes &nodes )
 
 bool huffman::cread_block()
 {
-	if ( m_input->eof() ) return false;
+	if ( m_input.eof() ) return false;
 
 	nodes frequency( BUF_LEN );
 	bool br = false;
-	while ( !m_input->eof() && !br )
+	while ( !m_input.eof() && !br )
 	{
 		char chars[BUF_LEN];
 		size_t i = 0;
@@ -87,7 +87,7 @@ void huffman::cwrite_block()
 	*m_output << *m_root << '\0' << '\0' << '\0';
 	vector<bitset> codes( BUF_LEN );
 
-	while ( !m_input->eof() && !m_root->empty() )
+	while ( !m_input.eof() && !m_root->empty() )
 	{
 		char chars[BUF_LEN];
 		size_t i = 0;
@@ -108,7 +108,8 @@ void huffman::cwrite_block()
 
 bool huffman::dread_block()
 {
-	return !m_input->eof() && !m_input->fail();
+	char ch;
+	return read( &ch, 1 ) > 0;
 }
 
 void huffman::dwrite_block()
@@ -133,8 +134,7 @@ void huffman::dwrite_block()
 			new tree_node( (unsigned char) entry[0],
 			(((unsigned char) entry[1]) << 8) | (unsigned char) entry[2] )
 		) );
-		if ( entry[0] >= 32 && entry[0] <= 127 ) cerr << entry[0] << "=" << (((unsigned char) entry[1]<<8)|(unsigned char)entry[2]) << endl;
-	} while ( !m_input->eof() );
+	} while ( !m_input.eof() );
 
 	if ( nodes.empty() )
 	{
@@ -149,7 +149,7 @@ void huffman::dwrite_block()
 	char chars[BUF_LEN];
 	bitset bits;
 	size_t need = m_root->encoded_size() / 8 + ( m_root->encoded_size() % 8 ? 1 : 0 );
-	while ( !m_input->eof() && need > 0 )
+	while ( !m_input.eof() && need > 0 )
 	{
 		n = read( chars, min( need, (size_t) BUF_LEN ) );
 		need -= n;

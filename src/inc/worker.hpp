@@ -7,6 +7,7 @@
 #include <boost/dynamic_bitset.hpp>
 #include <boost/function.hpp>
 #include "compress.hpp"
+#include "reader.hpp"
 
 using namespace std;
 
@@ -19,10 +20,10 @@ public:
 	typedef boost::function<void ( worker* )> write_func;
 
 private:
-	void _operate( worker::read_func read, worker::write_func write );
+	void _operate( worker::read_func read, worker::write_func write, bool clean_buf );
 
 protected:
-	fstream *m_input;
+	reader m_input;
 	fstream *m_output;
 	bitset m_bits_buf;
 

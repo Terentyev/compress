@@ -2,7 +2,7 @@
 
 bool lwz::cread_block()
 {
-	return !m_input->eof();
+	return !m_input.eof();
 }
 
 void lwz::cwrite_block()
@@ -10,11 +10,11 @@ void lwz::cwrite_block()
 	string str;
 	char ch;
 
-	m_input->get( ch );
+	read( &ch, 1 );
 	str += ch;
-	while ( !m_input->eof() )
+	while ( !m_input.eof() )
 	{
-		m_input->get( ch );
+		read( &ch, 1 );
 
 		if ( m_table.find( str + ch ) != m_table.end() ) str += ch;
 		else
@@ -39,7 +39,7 @@ void lwz::cwrite_block()
 
 bool lwz::dread_block()
 {
-	return !m_input->eof();
+	return !m_input.eof();
 }
 
 void lwz::dwrite_block()
@@ -52,7 +52,7 @@ void lwz::dwrite_block()
 
 	str += buf[1];
 
-	while ( !m_input->eof() )
+	while ( !m_input.eof() )
 	{
 		if ( !read2chars( buf, true ) ) break;
 		if ( 0 != buf[0] )
@@ -97,18 +97,15 @@ void lwz::dwrite_block()
 
 bool lwz::read2chars( char *buf, bool silent )
 {
-	for ( size_t i = 0; i < 2; ++i )
+	size_t n = read( buf, 2 );
+	if ( n < 2 )
 	{
-		if ( m_input->eof() )
+		if ( !silent )
 		{
-			if ( !silent )
-			{
-				cerr << "Bad input format" << endl;
-				exit( 1 );
-			}
-			return false;
+			cerr << "Bad input format" << endl;
+			exit( 1 );
 		}
-		m_input->get( buf[i] );
+		return false;
 	}
 	return true;
 }
