@@ -3,9 +3,9 @@
 #define __COMPRESS_H_INCLUDE
 
 #define ALGO_HUFFMAN 0
-#define ALGO_LWZ     1
+#define ALGO_LZW     1
 #define ALGO_HUFFMAN_STR "huffman"
-#define ALGO_LWZ_STR      "lwz"
+#define ALGO_LZW_STR      "lzw"
 #define OP_COMPRESS   0
 #define OP_DECOMPRESS 1
 

@@ -6,7 +6,7 @@
 #include <map>
 #include "worker.hpp"
 
-class lwz : public worker
+class lzw : public worker
 {
 private:
 	unsigned char m_next_code;
@@ -22,7 +22,7 @@ protected:
 	virtual void dwrite_block();
 
 public:
-	lwz() : m_next_code( 1 ) {};
+	lzw() : m_next_code( 1 ) {};
 };
 
 #endif // __LWZ_H_INCLUDE

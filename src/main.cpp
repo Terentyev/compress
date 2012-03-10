@@ -9,14 +9,14 @@
 #include "compress.hpp"
 #include "worker.hpp"
 #include "huffman.hpp"
-#include "lwz.hpp"
+#include "lzw.hpp"
 
 using namespace std;
 
 void usage(const char *app)
 {
-	cout << app << " [-a {huffman|lwz}] {-x|-c} -i <file> -o <file>" << endl
-		<<  "	-a {huffman,lwz}     set compress algorithm (default huffman)" << endl
+	cout << app << " [-a {huffman|lzw}] {-x|-c} -i <file> -o <file>" << endl
+		<<  "	-a {huffman,lzw}     set compress algorithm (default huffman)" << endl
 		<<  "	-x                   decompress file" << endl
 		<<  "	-c                   compress file" << endl
 		<<  "	-i <file>            input file" << endl
@@ -40,7 +40,7 @@ bool parseArgs( int argc, char **argv, int &algo, int &operation, fstream &input
 			{
 				case 0:
 					if ( !strcmp( argv[i], ALGO_HUFFMAN_STR ) ) algo = ALGO_HUFFMAN;
-					else if ( !strcmp( argv[i], ALGO_LWZ_STR ) ) algo = ALGO_LWZ;
+					else if ( !strcmp( argv[i], ALGO_LZW_STR ) ) algo = ALGO_LZW;
 					else return error( "Wrong compress algorithm" );
 					break;
 				case 1:
@@ -100,8 +100,8 @@ int main( int argc, char **argv )
 		case ALGO_HUFFMAN:
 			w = boost::shared_ptr<worker>(new huffman());
 			break;
-		case ALGO_LWZ:
-			w = boost::shared_ptr<worker>(new lwz());
+		case ALGO_LZW:
+			w = boost::shared_ptr<worker>(new lzw());
 			break;
 		default:
 			error( "Not implemented" );

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BIN="./compress -a huffman"
+BIN="./compress -a lzw"
 
 if [ -d .tmp ] ; then
     rm -f .tmp/* > /dev/null

@@ -1,11 +1,11 @@
-#include "lwz.hpp"
+#include "lzw.hpp"
 
-bool lwz::cread_block()
+bool lzw::cread_block()
 {
 	return !m_input.eof();
 }
 
-void lwz::cwrite_block()
+void lzw::cwrite_block()
 {
 	string str;
 	char ch;
@@ -37,12 +37,12 @@ void lwz::cwrite_block()
 	else for ( string::iterator i = str.begin(); i != str.end(); ++i ) *m_output << '\0' << *i;
 }
 
-bool lwz::dread_block()
+bool lzw::dread_block()
 {
 	return !m_input.eof();
 }
 
-void lwz::dwrite_block()
+void lzw::dwrite_block()
 {
 	string str, tmp;
 	char buf[2];
@@ -95,7 +95,7 @@ void lwz::dwrite_block()
 	*m_output << str;
 }
 
-bool lwz::read2chars( char *buf, bool silent )
+bool lzw::read2chars( char *buf, bool silent )
 {
 	size_t n = read( buf, 2 );
 	if ( n < 2 )
