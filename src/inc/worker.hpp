@@ -24,7 +24,7 @@ private:
 
 protected:
 	reader m_input;
-	fstream *m_output;
+	ostream *m_output;
 	bitset m_bits_buf;
 
 	virtual bool cread_block() = 0;
@@ -36,7 +36,7 @@ protected:
 	size_t read( char *buf, size_t count );
 
 public:
-	void init( fstream &input, fstream &output );
+	void init( fstream &input, ostream *output );
 
 	void compress();
 	void decompress();

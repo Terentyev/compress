@@ -29,10 +29,10 @@ size_t worker::read( char *buf, size_t count )
 	return m_input.read( buf, count );
 }
 
-void worker::init( fstream &input, fstream &output )
+void worker::init( fstream &input, ostream *output )
 {
 	m_input = reader( &input );
-	m_output = &output;
+	m_output = output;
 }
 
 void worker::_operate( worker::read_func read, worker::write_func write, bool clean_buf )

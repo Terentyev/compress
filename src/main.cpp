@@ -15,7 +15,7 @@ using namespace std;
 
 void usage(const char *app)
 {
-	cout << app << " [-a {huffman|lzw}] {-x|-c} -i <file> -o <file>" << endl
+	cout << app << " [-a {huffman|lzw}] {-x|-c} [-o <file>] -i <file> " << endl
 		<<  "	-a {huffman,lzw}     set compress algorithm (default huffman)" << endl
 		<<  "	-x                   decompress file" << endl
 		<<  "	-c                   compress file" << endl
@@ -66,7 +66,7 @@ bool parseArgs( int argc, char **argv, int &algo, int &operation, fstream &input
 			}
 		}
 	}
-	return input.is_open() && output.is_open() && operation != -1;
+	return input.is_open() && operation != -1;
 }
 
 void handler( int sig )
@@ -107,11 +107,13 @@ int main( int argc, char **argv )
 			error( "Not implemented" );
 			return 1;
 	}
-	w->init( input, output );
+	ostream *out = &cout;
+	if ( output.is_open() ) out = &output;
+	w->init( input, out );
 	if ( op == OP_COMPRESS ) w->compress();
 	else w->decompress();
 	input.close();
-	output.close();
+	if ( output.is_open() ) output.close();
 
 	return 0;
 }
