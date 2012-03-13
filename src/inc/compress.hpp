@@ -4,8 +4,10 @@
 
 #define ALGO_HUFFMAN 0
 #define ALGO_LZW     1
+#define ALGO_TAR     2
 #define ALGO_HUFFMAN_STR "huffman"
-#define ALGO_LZW_STR      "lzw"
+#define ALGO_LZW_STR     "lzw"
+#define ALGO_TAR_STR     "tar"
 #define OP_COMPRESS   0
 #define OP_DECOMPRESS 1
 

@@ -36,7 +36,7 @@ protected:
 	size_t read( char *buf, size_t count );
 
 public:
-	void init( fstream &input, ostream *output );
+	void init( istream *input, ostream *output );
 
 	void compress();
 	void decompress();
