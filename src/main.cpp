@@ -3,8 +3,11 @@
 #include <string>
 #include <vector>
 #include <string.h>
+#ifndef _WIN32
 #include <execinfo.h>
 #include <signal.h>
+#else
+#endif
 #include <boost/filesystem.hpp>
 #include <boost/shared_ptr.hpp>
 #include "compress.hpp"
@@ -75,6 +78,7 @@ bool parseArgs( int argc, char **argv, int &algo, int &operation, vector<string>
 	return operation != -1;
 }
 
+#ifndef _WIN32
 void handler( int sig )
 {
 #define ARRAY_LEN 10
@@ -86,10 +90,13 @@ void handler( int sig )
 	backtrace_symbols_fd( array, size, 2 );
 	exit( 1 );
 }
+#endif
 
 int main( int argc, char **argv )
-{
+{    
+#ifndef _WIN32
 	signal(SIGSEGV, handler);
+#endif
 
 	int algo = ALGO_HUFFMAN, op = -1;
 	string output;
