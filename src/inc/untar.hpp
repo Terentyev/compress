@@ -27,8 +27,7 @@ public:
 
 class untar: private untar_buf, public ostream
 {
-private:
-	ostream m_stream;
+
 public:
 	untar( const string &dest ): untar_buf( dest ), ostream( this ) {};
 };
